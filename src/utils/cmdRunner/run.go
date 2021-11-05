@@ -44,8 +44,9 @@ func Run(cmd *exec.Cmd) ([]byte, ExecErrInterface) {
 	errOutput := &bytes.Buffer{}
 	cmd.Stdout = output
 	cmd.Stderr = errOutput
-	cmd.Env = os.Environ()
-
+	if cmd.Env == nil {
+		cmd.Env = os.Environ()
+	}
 	if err := cmd.Run(); err != nil {
 		exitCode := 0
 		if exitError, ok := err.(*exec.ExitError); ok {

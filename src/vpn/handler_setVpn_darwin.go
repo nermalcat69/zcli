@@ -9,8 +9,8 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/zerops-io/zcli/src/i18n"
@@ -23,19 +23,10 @@ func (h *Handler) setVpn(selectedVpnAddress, privateKey string, mtu uint32, resp
 
 	h.logger.Debug("run wireguard-go utun")
 
-	output, err := cmdRunner.Run(exec.Command("wireguard-go", "utun"))
+	interfaceName, err := h.createInterface()
 	if err != nil {
-		h.logger.Error(err)
-		return errors.New(i18n.VpnStartWireguardUtunError)
+		return err
 	}
-
-	re := regexp.MustCompile(`INFO: \((.*)\)`)
-	submatches := re.FindSubmatch(output)
-	if len(submatches) != 2 {
-		return errors.New(i18n.VpnStartWireguardInterfaceNotfound)
-	}
-
-	interfaceName := string(submatches[1])
 
 	{
 		privateKeyName := uuid.New().String()
@@ -88,4 +79,20 @@ func (h *Handler) setVpn(selectedVpnAddress, privateKey string, mtu uint32, resp
 	}
 
 	return nil
+}
+
+func (h *Handler) createInterface() (string, error) {
+	wireGuardCmd := exec.Command("wireguard-go", "utun")
+	wireGuardCmd.Env = append(os.Environ(), "WG_TUN_NAME_FILE=/tmp/zerops_tun")
+	_, execErr := cmdRunner.Run(wireGuardCmd)
+	if execErr != nil {
+		h.logger.Error(execErr)
+		return "", errors.New(i18n.VpnStartWireguardUtunError)
+	}
+	buf, err := ioutil.ReadFile("/tmp/zerops_tun")
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(string(buf)), nil
 }

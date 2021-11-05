@@ -33,7 +33,7 @@ func CleanDns(dnsServer *dnsServer.Handler, dnsIp net.IP, interfaceName string, 
 		}
 	case LocalDnsManagementDarwin:
 		err := os.Remove(constants.ResolverZeropsPath)
-		if err != nil {
+		if err != nil && !os.IsNotExist(err) {
 			return err
 		}
 		dnsServer.StopForward()

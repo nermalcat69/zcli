@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os/exec"
+	"runtime"
 	"time"
 
 	"github.com/zerops-io/zcli/src/i18n"
@@ -11,23 +12,25 @@ import (
 
 func IsAlive() (bool, error) {
 
-	_, err := exec.LookPath("dig")
-	if err == nil {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
-		defer cancel()
-		ipAddress, err := exec.CommandContext(ctx, "dig", "+short", "core-master.zerops", "AAAA").Output()
-		if err != nil {
-			return false, err
-		}
-		if string(ipAddress) == "" {
-			return false, nil
-		}
+	if runtime.GOOS != "darwin" {
+		_, err := exec.LookPath("dig")
+		if err == nil {
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+			defer cancel()
+			ipAddress, err := exec.CommandContext(ctx, "dig", "+short", "core-master.zerops", "AAAA").Output()
+			if err != nil {
+				return false, err
+			}
+			if string(ipAddress) == "" {
+				return false, nil
+			}
 
-		return true, nil
+			return true, nil
+		}
 	}
 
 	// ping6 fallback
-	_, err = exec.LookPath("ping6")
+	_, err := exec.LookPath("ping6")
 	if err == nil {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 		defer cancel()
