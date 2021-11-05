@@ -54,23 +54,15 @@ func SetDns(dnsServer *dnsServer.Handler, dnsIp net.IP, clientIp net.IP, vpnNetw
 			return err
 		}
 
-	case LocalDnsManagementScutil:
-
-		var zeropsDynamicStorage ZeropsDynamicStorage
-		zeropsDynamicStorage.Read()
-		zeropsDynamicStorage.VpnInterfaceName = vpnInterfaceName
-		zeropsDynamicStorage.Active = true
-		zeropsDynamicStorage.ClientIp = clientIp
-		zeropsDynamicStorage.VpnNetwork = vpnNetwork.String()
-		zeropsDynamicStorage.DnsIp = dnsIp
-		zeropsDynamicStorage.Apply()
-		dnsServer.SetAddresses(
-			zeropsDynamicStorage.ClientIp,
-			zeropsDynamicStorage.ServerAddresses,
-			zeropsDynamicStorage.DnsIp,
-			vpnNetwork,
-		)
-
+	case LocalDnsManagementDarwin:
+		err := utils.WriteLines(constants.ResolverZeropsPath,
+			[]string{
+				"search zerops", //FIXME: Testing
+				"nameserver " + dnsIp.String(),
+			})
+		if err != nil {
+			return err
+		}
 	default:
 		return UnknownDnsManagementErr
 	}

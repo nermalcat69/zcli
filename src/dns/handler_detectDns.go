@@ -3,9 +3,9 @@ package dns
 import (
 	"os/exec"
 	"regexp"
+	"runtime"
 
 	"github.com/zerops-io/zcli/src/constants"
-	"github.com/zerops-io/zcli/src/scutil"
 	"github.com/zerops-io/zcli/src/utils"
 	"github.com/zerops-io/zcli/src/utils/cmdRunner"
 )
@@ -16,18 +16,14 @@ const (
 	LocalDnsManagementSystemdResolve LocalDnsManagement = "SYSTEMD_RESOLVE"
 	LocalDnsManagementResolveConf    LocalDnsManagement = "RESOLVCONF"
 	LocalDnsManagementFile           LocalDnsManagement = "FILE"
-	LocalDnsManagementScutil         LocalDnsManagement = "SCUTIL"
+	LocalDnsManagementDarwin         LocalDnsManagement = "DARWIN"
 	LocalDnsManagementUnknown        LocalDnsManagement = "UNKNOWN"
 )
 
 func DetectDns() (LocalDnsManagement, error) {
 
-	binaryLocationExists, err := utils.FileExists(scutil.BinaryLocation)
-	if err != nil {
-		return "", err
-	}
-	if binaryLocationExists {
-		return LocalDnsManagementScutil, nil
+	if runtime.GOOS == "darwin" {
+		return LocalDnsManagementDarwin, nil
 	}
 
 	resolvExists, err := utils.FileExists(constants.ResolvFilePath)

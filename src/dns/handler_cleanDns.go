@@ -2,6 +2,7 @@ package dns
 
 import (
 	"net"
+	"os"
 	"os/exec"
 
 	"github.com/zerops-io/zcli/src/dnsServer"
@@ -30,11 +31,11 @@ func CleanDns(dnsServer *dnsServer.Handler, dnsIp net.IP, interfaceName string, 
 		if err != nil {
 			return err
 		}
-	case LocalDnsManagementScutil:
-		var zeropsDynamicStorage ZeropsDynamicStorage
-		zeropsDynamicStorage.Read()
-		zeropsDynamicStorage.Active = false
-		zeropsDynamicStorage.Apply()
+	case LocalDnsManagementDarwin:
+		err := os.Remove(constants.ResolverZeropsPath)
+		if err != nil {
+			return err
+		}
 		dnsServer.StopForward()
 	default:
 		return UnknownDnsManagementErr
