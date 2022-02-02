@@ -17,7 +17,7 @@ func CleanDns(dnsServer *dnsServer.Handler, dnsIp net.IP, interfaceName string, 
 	switch dnsManagement {
 	case LocalDnsManagementUnknown:
 		return nil
-	case LocalDnsManagementSystemdResolve:
+	case LocalDnsManagementSystemdResolve, LocalDnsManagementWindows:
 		return nil
 	case LocalDnsManagementResolveConf:
 		cmd := exec.Command("resolvconf", "-d", interfaceName)

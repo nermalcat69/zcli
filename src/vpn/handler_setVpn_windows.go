@@ -5,12 +5,14 @@ package vpn
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/zerops-io/zcli/src/zeropsVpnProtocol"
 )
@@ -20,6 +22,8 @@ const Template = `
 PrivateKey = {{.ClientPrivateKey}}
 Address = {{.ClientAddress}}
 DNS = {{.DnsServers}}
+PostUp = {{.PostUp}}
+PostDown = {{.PostDown}}
 
 [Peer]
 PublicKey = {{.ServerPublicKey}}
@@ -37,6 +41,7 @@ func (h *Handler) setVpn(selectedVpnAddress, privateKey string, mtu uint32, resp
 	vpnRange := zeropsVpnProtocol.FromProtoIPRange(response.GetVpn().GetVpnIpRange())
 	dnsIp := zeropsVpnProtocol.FromProtoIP(response.GetVpn().GetDnsIp())
 	serverAddress := selectedVpnAddress + ":" + strconv.Itoa(int(response.GetVpn().GetPort()))
+	serverIp := zeropsVpnProtocol.FromProtoIP(response.GetVpn().GetServerIp())
 
 	tmpl := template.Must(template.New("").Parse(strings.Replace(Template, "\n", "\r\n", -1)))
 
@@ -49,6 +54,8 @@ func (h *Handler) setVpn(selectedVpnAddress, privateKey string, mtu uint32, resp
 		ServerPublicKey string
 		AllowedIPs      string
 		ServerAddress   string
+		PostUp          string
+		PostDown        string
 	}{
 		ClientPrivateKey: privateKey,
 		ClientAddress:    clientIp.String(),
@@ -57,6 +64,9 @@ func (h *Handler) setVpn(selectedVpnAddress, privateKey string, mtu uint32, resp
 		DnsServers:      strings.Join([]string{dnsIp.String(), "zerops"}, ", "),
 		ServerAddress:   serverAddress,
 		ServerPublicKey: response.GetVpn().GetServerPublicKey(),
+
+		PostUp:   fmt.Sprintf("route add %s %s", vpnRange.String(), serverIp),
+		PostDown: fmt.Sprintf("route delete %s %s", vpnRange.String(), serverIp),
 	})
 	configFile := filepath.Join(os.TempDir(), "zerops.conf")
 
@@ -65,11 +75,12 @@ func (h *Handler) setVpn(selectedVpnAddress, privateKey string, mtu uint32, resp
 		return err
 	}
 
-	output, err := exec.Command("wireguard", "/installtunnelservice", configFile).Output()
+	output, err := exec.Command("wireguard", "/installtunnelservice", configFile).CombinedOutput()
 	if err != nil {
-		h.logger.Error(output)
+		h.logger.Error(string(output))
 		return err
 	}
 
+	time.Sleep(3 * time.Second)
 	return nil
 }

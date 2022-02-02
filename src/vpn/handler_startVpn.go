@@ -34,10 +34,10 @@ func (h *Handler) startVpn(
 	defer func() {
 		if err != nil {
 			h.logger.Error(err)
-			cleanErr := h.cleanVpn()
+			/*cleanErr := h.cleanVpn()
 			if cleanErr != nil {
 				h.logger.Error(cleanErr)
-			}
+			}*/
 		}
 	}()
 
@@ -85,8 +85,8 @@ func (h *Handler) startVpn(
 
 	h.logger.Debug("get vpn addresses end")
 
-	sort.Slice(ipRecords, func(i, j int) bool { return rand.Int()%2 == 0 })
-
+	sort.Slice(ipRecords, func(i, j int) bool { return ipRecords[i].To4() == nil || rand.Int()%2 == 0 })
+	h.logger.Debug(ipRecords)
 	vpnAddress := ""
 	for _, ip := range ipRecords {
 		ipString := utils.IpToString(ip)
