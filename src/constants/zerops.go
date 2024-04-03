@@ -2,7 +2,6 @@ package constants
 
 import (
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -96,7 +95,7 @@ func findFirstWritablePath(paths []pathReceiver, fileMode os.FileMode) string {
 }
 
 func checkPath(filePath string, fileMode os.FileMode) (string, error) {
-	dir := path.Dir(filePath)
+	dir := filepath.Dir(filePath)
 
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return "", err

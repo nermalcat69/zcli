@@ -106,6 +106,9 @@ var en = map[string]string{
 		"directory. The working directory is by default the current directory and can be changed\n" +
 		"using the --workingDir flag. zCLI deploys selected directories and/or files to Zerops. \n\n" +
 		"To build your application in Zerops, use the zcli push command instead.",
+	DeployRunning:  "Deploy is running",
+	DeployFailed:   "Deploy failed",
+	DeployFinished: "Deploy finished",
 
 	// push
 	CmdHelpPush: "the service push command.",

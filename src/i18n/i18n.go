@@ -111,6 +111,9 @@ const (
 	CmdHelpServiceDeploy = "CmdHelpServiceDeploy"
 	CmdDescDeploy        = "CmdDescDeploy"
 	CmdDescDeployLong    = "CmdDescDeployLong"
+	DeployRunning        = "DeployRunning"
+	DeployFailed         = "DeployFailed"
+	DeployFinished       = "DeployFinished"
 
 	// push
 	CmdHelpPush     = "CmdHelpPush"
