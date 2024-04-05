@@ -239,10 +239,11 @@ const (
 	CliLogFilePathEnvVar  = "CliLogFilePathEnvVar"
 	CliDataFilePathEnvVar = "CliDataFilePathEnvVar"
 
-	UnknownTerminalMode    = "UnknownTerminalMode"
-	UnableToDecodeJsonFile = "UnableToDecodeJsonFile"
-	UnableToWriteCliData   = "UnableToWriteCliData"
-	UnableToWriteLogFile   = "UnableToWriteLogFile"
+	UnknownTerminalMode       = "UnknownTerminalMode"
+	UnableToDecodeJsonFile    = "UnableToDecodeJsonFile"
+	UnableToWriteCliData      = "UnableToWriteCliData"
+	UnableToWriteLogFile      = "UnableToWriteLogFile"
+	UnableToWriteWgConfigFile = "UnableToWriteWgConfigFile"
 
 	// args
 	ArgsOnlyOneOptionalAllowed = "ArgsOnlyOneOptionalAllowed"
