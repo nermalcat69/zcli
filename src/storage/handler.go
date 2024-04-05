@@ -84,13 +84,9 @@ func (h *Handler[T]) save(data T) error {
 	}(); err != nil {
 		return err
 	}
-	if err := os.Remove(h.config.FilePath); err != nil {
-		return errors.WithStack(err)
-	}
+	os.Remove(h.config.FilePath)
+	defer os.Remove(h.config.FilePath + ".new")
 	if err := os.Rename(h.config.FilePath+".new", h.config.FilePath); err != nil {
-		return errors.WithStack(err)
-	}
-	if err := os.Remove(h.config.FilePath + ".new"); err != nil {
 		return errors.WithStack(err)
 	}
 	return nil
