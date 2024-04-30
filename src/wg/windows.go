@@ -34,11 +34,23 @@ func GenerateConfig(f io.Writer, privateKey wgtypes.Key, vpnSettings output.Proj
 }
 
 func UpCmd(ctx context.Context, filePath string) (err *exec.Cmd) {
-	return exec.CommandContext(ctx, "wireguard", "/installtunnelservice", filePath)
+	return exec.CommandContext(ctx,
+		"powershell",
+		"-Command",
+		"Start-Process", "wireguard",
+		"-Verb", "RunAs",
+		`-ArgumentList "/installtunnelservice", `+quote(filePath),
+	)
 }
 
 func DownCmd(ctx context.Context, _, interfaceName string) (err *exec.Cmd) {
-	return exec.CommandContext(ctx, "wireguard", "/uninstalltunnelservice", interfaceName)
+	return exec.CommandContext(ctx,
+		"powershell",
+		"-Command",
+		"Start-Process", "wireguard",
+		"-Verb", "RunAs",
+		`-ArgumentList "/uninstalltunnelservice", `+quote(interfaceName),
+	)
 }
 
 var vpnTmpl = `
@@ -60,3 +72,7 @@ Endpoint = {{.ProjectIpv4SharedEndpoint}}
 
 PersistentKeepalive = 5
 `
+
+func quote(in string) string {
+	return `"` + in + `"`
+}

@@ -1,4 +1,5 @@
 .idea
+.sandbox
 include/
 zcli.config.yml
 zcli.data
